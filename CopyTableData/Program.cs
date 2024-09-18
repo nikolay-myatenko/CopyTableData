@@ -1,32 +1,34 @@
-﻿using CopyTableData.Models;
-using CopyTableData.Services;
+﻿using CopyTableData.Services;
+using CopyTableData.Settings;
 
 Console.WriteLine("CopyTableData Started!");
 
-var databaseName = "Test";
-
-var connectionStringFrom = "Data Source=(local);Initial Catalog=Test;Integrated Security=SSPI;Persist Security Info=true;MultipleActiveResultSets=True";
-var sourceTableName = "People";
-
-var connectionStringTo = "Data Source=(local);Initial Catalog=Test;Integrated Security=SSPI;Persist Security Info=true;MultipleActiveResultSets=True";
-var destinationTableName = "People";
-
-var items = new List<Person>
+try
 {
-    new()
-    {
-        Id = Guid.NewGuid(),
-        FirstName = "Mykola",
-        LastName = "Mykola",
-        BirthDate = DateTime.Parse("1985-09-25"),
-        Phone = 380965510277
-    }
-};
+    // Initialize items where we will store the data
+    var items = CopySettings.InitItems();
 
-if (!DatabaseService.IsTableExist(connectionStringTo, PersonTable.TableName))
-    DatabaseService.RunSql(connectionStringTo, PersonTable.TableCreateScript);
+    // Check if the source table exists
+    if (!DatabaseService.IsTableExist(CopySettings.SourceConnectionString, CopySettings.SourceTableName))
+        // Read the data from the source table
+        items = DatabaseService.ReadTable(CopySettings.SourceConnectionString, CopySettings.SourceTableSelectScript, CopySettings.ItemSelector);
+    else Console.WriteLine($"Table {CopySettings.SourceTableName} does not exist!");
 
-BulkInsertService.BulkInsert(connectionStringTo, destinationTableName, items);
+    // Check if the copy table exists
+    if (!DatabaseService.IsTableExist(CopySettings.CopyConnectionString, CopySettings.CopyTableName))
+        // Create the copy table if it does not exist
+        DatabaseService.RunSql(CopySettings.CopyConnectionString, CopySettings.CopyTableCreateScript);
+
+    // Check if there is data to copy
+    if (items.Count > 0)
+        // Copy the data to the copy table
+        BulkInsertService.BulkInsert(CopySettings.CopyConnectionString, CopySettings.CopyTableName, items);
+    else Console.WriteLine("No data to copy!");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Application Error! Error Message: {ex.Message}");
+}
 
 Console.WriteLine("CopyTableData Completed!");
 Console.ReadLine();

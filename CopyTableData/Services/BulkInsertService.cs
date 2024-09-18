@@ -3,8 +3,9 @@ using System.Data.SqlClient;
 
 namespace CopyTableData.Services
 {
-    public class BulkInsertService
+    public static class BulkInsertService
     {
+        // This method is used to bulk insert the data to the table
         public static void BulkInsert<T>(string connectionString, string destinationTableName, List<T> items)
         {
             var table = new DataTable();
@@ -35,6 +36,7 @@ namespace CopyTableData.Services
             }
         }
 
+        // This method is used to get the default type
         public static Type DefaultType => typeof(string);
     }
 }

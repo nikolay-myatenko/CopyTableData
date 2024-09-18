@@ -1,5 +1,7 @@
 ﻿namespace CopyTableData.Models
 {
+    // Person DTO
+    // This class is used to store the data from the source table
     public class Person
     {
         public Guid Id { get; set; }
