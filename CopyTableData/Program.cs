@@ -22,7 +22,7 @@ try
     // Check if there is data to copy
     if (items.Count > 0)
         // Copy the data to the copy table
-        BulkInsertService.BulkInsert(CopySettings.CopyConnectionString, CopySettings.CopyTableName, items);
+        DatabaseService.BulkInsert(CopySettings.CopyConnectionString, CopySettings.CopyTableName, items);
     else Console.WriteLine("No data to copy!");
 }
 catch (Exception ex)
